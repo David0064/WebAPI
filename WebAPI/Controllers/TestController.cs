@@ -2,7 +2,9 @@
 using Microsoft.Extensions.Configuration;
 using MySqlConnector;
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using WebAPI.Models;
 
 namespace WebAPI.Controllers
@@ -30,7 +32,7 @@ namespace WebAPI.Controllers
             using (MySqlConnection mycon = new MySqlConnection(sqlDataSource))
             {
                 mycon.Open();
-                using (MySqlCommand mycommand=new MySqlCommand(query, mycon))
+                using (MySqlCommand mycommand = new MySqlCommand(query, mycon))
                 {
                     mycommand.Parameters.AddWithValue("@id", id);
                     myReader = mycommand.ExecuteReader();
@@ -46,7 +48,7 @@ namespace WebAPI.Controllers
 
         [HttpGet]
 
-        public IActionResult Get()
+        public IActionResult Get([FromQuery] int? page)
         {
             string query = @"select * from Test01";
 
@@ -66,7 +68,20 @@ namespace WebAPI.Controllers
                 }
             }
 
-            return new JsonResult(table);
+            List<Test01> listTest01 = new List<Test01>();
+
+            listTest01 = (from DataRow dr in table.Rows
+                          select new Test01
+                          {
+                              Id = Convert.ToInt32(dr["Id"]),
+                              Nama = dr["Nama"].ToString(),
+                              Created = Convert.ToDateTime(dr["Created"]),
+                              Updated = Convert.ToDateTime(dr["Updated"])
+                          }).ToList();
+            int pageSize = 20;
+            listTest01 = listTest01.Skip(pageSize * ((page ?? 1) - 1) ).Take(pageSize).ToList();
+
+            return new JsonResult(listTest01);
         }
 
         [HttpPost("create")]
