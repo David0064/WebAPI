@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using EasyNetQ;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using MySqlConnector;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
+using WebAPI.BackgroundServices;
 using WebAPI.Models;
 
 namespace WebAPI.Controllers
@@ -14,14 +17,15 @@ namespace WebAPI.Controllers
     public class TestController : ControllerBase
     {
         private readonly IConfiguration configuration;
+        private readonly IBus bus;
 
-        public TestController(IConfiguration configuration)
+        public TestController(IConfiguration configuration, IBus bus)
         {
             this.configuration = configuration;
+            this.bus = bus;
         }
 
         [HttpGet("{id}")]
-
         public IActionResult GetById(int id)
         {
             string query = @"select * from Test01 where id = @id";
@@ -47,7 +51,6 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet]
-
         public IActionResult Get([FromQuery] int? page)
         {
             string query = @"select * from Test01";
@@ -85,7 +88,6 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost("create")]
-
         public IActionResult Create(Test01 model)
         {
             string query = @"insert into Test01 (Nama, Status, Created, Updated)
@@ -115,7 +117,6 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut("update")]
-
         public IActionResult Update(Test01 model)
         {
             string query = @"update Test01 
@@ -145,7 +146,6 @@ namespace WebAPI.Controllers
         }
 
         [HttpDelete("delete/{id}")]
-
         public JsonResult Delete(int id)
         {
             string query = @"delete from Test01 where id = @id";
@@ -169,5 +169,26 @@ namespace WebAPI.Controllers
 
             return new JsonResult("Deleted Successfully");
         }
+
+
+        //add data
+        [HttpPost]
+        public async Task<string> Post()
+        {
+            //var data = new Test01
+            //{
+            //    Nama = "Ini Budi",
+            //    Status = 1
+            //};
+            UserRequest request = new UserRequest(1);
+
+            var response = await bus.Rpc.RequestAsync<UserRequest, UserResponse>(request);
+
+            return response.Name;
+        }
+
+        //PUT EDIT DATA
+
+        //DELETE
     }
 }

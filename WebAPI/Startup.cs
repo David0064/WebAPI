@@ -14,6 +14,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using EasyNetQ;
+using WebAPI.BackgroundServices;
 
 namespace WebAPI
 {
@@ -38,7 +40,11 @@ namespace WebAPI
                 .AddNewtonsoftJson(options => options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore)
                 .AddNewtonsoftJson(options => options.SerializerSettings.ContractResolver = new DefaultContractResolver());
 
-            
+            string rabbitmqConnectionString = "host=host.docker.internal;username=admin;password=admin;timeout=60";
+            var bus = RabbitHutch.CreateBus(rabbitmqConnectionString);
+            services.AddSingleton(bus);
+
+            services.AddHostedService<UserEventHandler>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
