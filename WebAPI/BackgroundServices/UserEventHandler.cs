@@ -3,21 +3,19 @@ using Microsoft.Extensions.Hosting;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using WebAPI.Models;
 
 namespace WebAPI.BackgroundServices
 {
     public class UserRequest
     {
-        public long Id { get; set; }
-        public UserRequest(long id)
-        {
-            Id = id;
-        }
+        public string command { get; set; }
+        public Test01 data { get; set; }
     }
 
     public class UserResponse
     {
-        public string Name { get; set; }
+        public string Response { get; set; }
         public UserResponse() { }
     }
 
@@ -32,12 +30,24 @@ namespace WebAPI.BackgroundServices
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await bus.Rpc.RespondAsync<UserRequest, UserResponse>(ProcessUserRequest);
+            await bus.Rpc.RespondAsync<UserRequest, UserResponse>(ProcessQueueRequest);
         }
 
-        private UserResponse ProcessUserRequest(UserRequest userRequest)
+        private UserResponse ProcessQueueRequest(UserRequest userRequest)
         {
-            return new UserResponse() { Name = "Ipsum" };
+            if(userRequest.command == "create")
+            {
+
+            }
+            else if(userRequest.command == "update")
+            {
+
+            }
+            else if(userRequest.command == "delete")
+            {
+
+            }
+            return new UserResponse() { Response = $"Successfully {userRequest.command}" };
         }
     }
 }

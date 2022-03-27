@@ -169,26 +169,5 @@ namespace WebAPI.Controllers
 
             return new JsonResult("Deleted Successfully");
         }
-
-
-        //add data
-        [HttpPost]
-        public async Task<string> Post()
-        {
-            //var data = new Test01
-            //{
-            //    Nama = "Ini Budi",
-            //    Status = 1
-            //};
-            UserRequest request = new UserRequest(1);
-
-            var response = await bus.Rpc.RequestAsync<UserRequest, UserResponse>(request);
-
-            return response.Name;
-        }
-
-        //PUT EDIT DATA
-
-        //DELETE
     }
 }
